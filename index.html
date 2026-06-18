@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Песни Насти Луневой</title>
+
+<style>
+body {
+  margin:0;
+  font-family:'Georgia', serif;
+  background:#000 url("background.jpg") center/cover fixed no-repeat;
+  color:#fff;
+}
+
+/* Фиксированная шапка */
+header {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(6px);
+  padding:12px 18px;
+  z-index:1000;
+  box-sizing:border-box;
+}
+
+.header-top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+h1 {
+  margin:0;
+  font-size:24px;
+  color:#ff99cc;
+  font-style:italic;
+}
+
+#nowPlaying {
+  margin-top:4px;
+  color:#4cc9f0;
+  font-size:13px;
+  font-style:italic;
+}
+
+/* Компактный поиск */
+#searchBox {
+  width:220px;
+  padding:6px 8px;
+  border-radius:6px;
+  border:none;
+  font-size:14px;
+  box-sizing:border-box;
+}
+
+/* Плеер */
+#playerBar {
+  margin-top:10px;
+  background:rgba(20,20,20,0.8);
+  padding:10px;
+  border-radius:8px;
+  max-width:600px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+audio { width:100%; }
+
+.controls {
+  margin-top:10px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+}
+
+button {
+  padding:7px 12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.btn { background:#4cc9f0; color:#000; }
+.btn-pink { background:#ff99cc; color:#000; }
+
+/* Контент */
+main {
+  margin-top:320px;
+  max-width:600px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+ul {
+  list-style:none;
+  padding:0;
+}
+
+li {
+  background:rgba(0,0,0,0.45);
+  padding:10px;
+  margin-bottom:8px;
+  border-radius:6px;
+}
+
+li.active {
+  background:#333;
+}
+
+.row {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.stats {
+  font-size:12px;
+  color:#4cc9f0;
+  margin-top:5px;
+}
+
+/* Донат */
+#donate {
+  background:rgba(17,17,17,0.85);
+  padding:20px;
+  border-radius:10px;
+  margin-top:25px;
+  text-align:center;
+}
+
+#donate img {
+  border-radius:10px;
+  display:block;
+  margin:0 auto 15px auto;
+}
+
+.donate-btn {
+  display:inline-block;
+  padding:12px 20px;
+  background:#4cc9f0;
+  color:#000;
+  font-weight:bold;
+  border-radius:8px;
+  text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <h1>Настя Лунева</h1>
+      <div id="nowPlaying">Сейчас играет: —</div>
+    </div>
+    <input type="text" id="searchBox" placeholder="Поиск песни...">
+  </div>
+
+  <div id="playerBar">
+    <audio id="audio" controls></audio>
+
+    <div class="controls">
+      <button class="btn" id="prevBtn">⏮ Prev</button>
+      <button class="btn" id="nextBtn">⏭ Next</button>
+      <button class="btn-pink" id="shuffleBtn">🔀 Shuffle</button>
+      <button class="btn-pink" id="repeatBtn">🔁 Repeat</button>
+      <button class="btn" id="downloadCurrentBtn">⬇️ Скачать</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <ul id="trackList"></ul>
+
+  <!-- ДОНАТ БЛОК -->
+  <section id="donate">
+    <h2 style="color:#ff99cc; font-style:italic; margin-bottom:10px;">
+      Потдержать творчество Насти  Луневой
+    </h2>
+
+    <p style="color:#4cc9f0; margin-bottom:10px;">
+      Откройте камеру на телефоне и наведите  на QR‑код
+    </p>
+
+    <img src="images/privat24-qr.png" width="240" height="240" alt="QR Privat24">
+
+    <a href="https://send.monobank.ua/XXXXXXXX"
+       target="_blank"
+       class="donate-btn">
+       💖 Донат онлайн
+    </a>
+  </section>
+</main>
+
+<script>
+/* === СПИСОК ПЕСЕН (з .mp3) === */
+const tracks = [
+  "Если бы не ты.mp3",
+  "Иегова силы дай мне.mp3",
+  "Твои очи обрати.mp3",
+  "Как предсказано было.mp3",
+  "Благодарю за братьев и сестер.mp3",
+  "Все наши недопониманья.mp3",
+  "Вы мне нравитесь.mp3",
+  "Два апельсина.mp3",
+  "Детские глаза.mp3",
+  "За тысячу закатов.mp3",
+  "Как птица ночная.mp3",
+  "Как хорошо валься на берегу.mp3",
+  "Какой ты красивый.mp3",
+  "Люблю смотреть на твой огонь.mp3",
+  "Но вы мне нравитесь.mp3",
+  "Новые зори.mp3",
+  "Проснись любимая.mp3",
+  "Пусть Бог хранит тебя во снах.mp3",
+  "Рассвет - улыбка Иеговы.mp3",
+  "Рассвет.mp3",
+  "Скорей бы лето.mp3",
+  "Солнышко весеннее.mp3",
+  "Суок.mp3",
+  "Такое бывает счастье.mp3",
+  "Терроризм.mp3",
+  "Что бы было светлее идти.mp3",
+  "Что еще я буду вытворь.mp3",
+  "Чтоб разрушить все преграды.mp3",
+  "Этот дождь никогда не кончится.mp3",
+  "Я буду там.mp3",
+  "Я буду помнить о тебе.mp3",
+  "Я грешный человек.mp3",
+  "Я так люблю тебя мой Бог.mp3",
+  "А не начать ли мне с себя.mp3",
+  "А небо плотно затянуло.mp3",
+  "Ах эта жизнь наполненная веснами.mp3",
+  "В раздумьях трудных о простом.mp3",
+  "Иегова учи меня жить.mp3",
+  "Как хорошо под тихий дождь молиться.mp3",
+  "Осуждающий взгляд отнимает покой.mp3",
+  "Победа иль вновь пораженье.mp3",
+  "Смотрю удерживая дрожь.mp3",
+  "Уже казалось мне.mp3",
+  "А лето в городе смерти подобно.mp3",
+  "А я уеду.mp3",
+  "Благодарю Тебя.mp3",
+  "Будем любить друг друга.mp3",
+  "Вечер.mp3",
+  "Горе прошло.mp3",
+  "Губы шепчут.mp3",
+  "Давай поговорим о Нем.mp3",
+  "Декорации сменся.mp3",
+  "Довольно жизни без оглядки.mp3",
+  "Друг мой верный.mp3",
+  "Если бы не Ты.mp3",
+  "Есть слово что за ним стоит.mp3",
+  "Забот и дел так много.mp3",
+  "Закат.mp3",
+  "Иегова я так ослабел.mp3",
+  "Как волны нескончаемые.mp3",
+  "Как зима сегодня кружит.mp3",
+  "Как сегодня ясно в небе над рекой.mp3",
+  "Когда земля покроется цветами.mp3",
+  "Когда мои иссякнут силы.mp3",
+  "Когда так мало тишины.mp3",
+  "Когда у меня будет все что хочу.mp3",
+  "Мина.mp3",
+  "Мир полный любви.mp3",
+  "Мне снился сон.mp3",
+  "Мы шли с тобой по берегу реки.mp3",
+  "На лепестках роса как слезы.mp3",
+  "На лицах печать неверья.mp3",
+  "Нет это не случайно.mp3",
+  "Осень.mp3",
+  "Очень просто и ласково.mp3",
+  "Печально сомкнуты ресницы.mp3",
+  "Помнишь день когда.mp3",
+  "Посмотри на облака.mp3",
+  "Пробьюсь ростком.mp3",
+  "Прощай мой берег.mp3",
+  "Радость Иеговы.mp3",
+  "Так хочется достичь всего.mp3",
+  "Так хочется покоя и любви.mp3",
+  "У истока истинной любви.mp3",
+  "Я так скучаю по тебе.mp3",
+  "До встречи.mp3",
+  "Зимой весь мир.mp3",
+  "Как же вышло.mp3",
+  "Когда под снегом.mp3",
+  "Когда придет весна.mp3",
+  "Лето мое.mp3",
+  "Лето.mp3",
+  "Небо вода и земля.mp3",
+  "Подруга осени.mp3",
+  "Слон.mp3"
+];
+
+/* === ПЕРЕМЕННЫЕ === */
+let currentIndex = 0;
+let isShuffle = false;
+let repeatMode = 0; // 0 = off, 1 = one, 2 = all
+
+const audio = document.getElementById("audio");
+const trackList = document.getElementById("trackList");
+const nowPlaying = document.getElementById("nowPlaying");
+const searchBox = document.getElementById("searchBox");
+const downloadCurrentBtn = document.getElementById("downloadCurrentBtn");
+
+const safeSrc = (name) => "music/" + encodeURIComponent(name);
+
+/* === ЛОКАЛЬНАЯ СТАТИСТИКА === */
+function initStats() {
+  const stats = JSON.parse(localStorage.getItem("stats")) || {};
+  tracks.forEach(t => { if (!stats[t]) stats[t] = { plays:0, downloads:0 }; });
+  localStorage.setItem("stats", JSON.stringify(stats));
+}
+const getStats = () => JSON.parse(localStorage.getItem("stats")) || {};
+const setStats = (s) => localStorage.setItem("stats", JSON.stringify(s));
+
+/* === СКАЧИВАНИЕ === */
+function downloadFile(title) {
+  const s = getStats();
+  s[title].downloads++;
+  setStats(s);
+
+  const a = document.createElement("a");
+  a.href = safeSrc(title);
+  a.download = title;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  renderTrackList(searchBox.value);
+}
+
+/* === ОТОБРАЖЕНИЕ СПИСКА === */
+function renderTrackList(filter="") {
+  const stats = getStats();
+  trackList.innerHTML = "";
+
+  tracks
+    .filter(t => t.toLowerCase().includes(filter.toLowerCase()))
+    .forEach((title) => {
+      const realIndex = tracks.indexOf(title);
+
+      const li = document.createElement("li");
+      if (realIndex === currentIndex) li.classList.add("active");
+
+      const row = document.createElement("div");
+      row.className = "row";
+
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = title.replace(".mp3","");
+
+      const playBtn = document.createElement("button");
+      playBtn.textContent = "▶️";
+      playBtn.className = "btn";
+      playBtn.onclick = () => loadTrack(realIndex, true);
+
+      const dlBtn = document.createElement("button");
+      dlBtn.textContent = "⬇️";
+      dlBtn.className = "btn";
+      dlBtn.onclick = () => downloadFile(title);
+
+      row.appendChild(nameSpan);
+      row.appendChild(playBtn);
+      row.appendChild(dlBtn);
+
+      const statsDiv = document.createElement("div");
+      statsDiv.className = "stats";
+      statsDiv.textContent = `🎧 ${stats[title].plays} | ⬇️ ${stats[title].downloads}`;
+
+      li.appendChild(row);
+      li.appendChild(statsDiv);
+      trackList.appendChild(li);
+
+      if (realIndex === currentIndex) {
+        setTimeout(() => {
+          li.scrollIntoView({ behavior:"smooth", block:"center" });
+        }, 50);
+      }
+    });
+}
+
+/* === ЗАГРУЗКА ТРЕКА === */
+function loadTrack(index, autoplay=false) {
+  currentIndex = index;
+  const title = tracks[index];
+  audio.src = safeSrc(title);
+  nowPlaying.textContent = "Сейчас играет: " + title.replace(".mp3","");
+  if (autoplay) audio.play();
+  renderTrackList(searchBox.value);
+}
+
+/* === СОБЫТИЯ === */
+audio.onplay = () => {
+  const stats = getStats();
+  stats[tracks[currentIndex]].plays++;
+  setStats(stats);
+  renderTrackList(searchBox.value);
+};
+
+audio.addEventListener("ended", () => {
+  if (repeatMode === 1) {
+    audio.currentTime = 0;
+    audio.play();
+    return;
+  }
+  if (repeatMode === 2) {
+    currentIndex = (currentIndex + 1) % tracks.length;
+    loadTrack(currentIndex, true);
+    return;
+  }
+  if (currentIndex < tracks.length - 1) {
+    currentIndex++;
+    loadTrack(currentIndex, true);
+  }
+});
+
+downloadCurrentBtn.onclick = () => downloadFile(tracks[currentIndex]);
+
+document.getElementById("prevBtn").onclick = () => {
+  currentIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+  loadTrack(currentIndex, true);
+};
+
+document.getElementById("nextBtn").onclick = () => {
+  currentIndex = isShuffle
+    ? Math.floor(Math.random()*tracks.length)
+    : (currentIndex + 1) % tracks.length;
+  loadTrack(currentIndex, true);
+};
+
+document.getElementById("shuffleBtn").onclick = () => {
+  isShuffle = !isShuffle;
+  alert("Shuffle: " + (isShuffle ? "ON" : "OFF"));
+};
+
+document.getElementById("repeatBtn").onclick = () => {
+  repeatMode = (repeatMode + 1) % 3;
+  if (repeatMode === 0) alert("Повторение: выключено");
+  if (repeatMode === 1) alert("Повторение: одна песня");
+  if (repeatMode === 2) alert("Повторение: все песни");
+};
+
+searchBox.oninput = () => renderTrackList(searchBox.value);
+
+/* === СТАРТ === */
+initStats();
+renderTrackList();
+loadTrack(0, false);
+</script>
+
+</body>
+</html>
